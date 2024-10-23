@@ -1,0 +1,82 @@
+# Copyright (c) Microsoft Corporation.
+# Modifications Copyright (c) 2024 Pin-Yen Huang.
+# Licensed under the MIT License.
+
+import os
+import aim
+
+from .hook import Hook
+from semilearn.core.utils import get_logger
+
+
+class AimHook(Hook):
+    """
+    A hook for tracking training progress with Aim.
+    """
+
+    def before_run(self, algorithm):
+        """Setup the Aim tracking. Either create a new run or resume an existing one if
+        the algorithm has a run hash.
+
+        Args:
+            algorithm (AlgorithmBase): The training algorithm.
+        """
+        # Initialize run
+        name = algorithm.save_name
+        project = algorithm.save_dir.split("/")[-1]
+        repo = os.path.join(algorithm.args.save_dir, "aim", algorithm.args.save_name)
+
+        logger = get_logger(
+            name=algorithm.args.save_name,
+            save_path=os.path.join(algorithm.args.save_dir, algorithm.args.save_name),
+            level="INFO",
+        )
+
+        if hasattr(algorithm, "aim_run_hash"):
+            # Resume tracking
+            self.run = aim.Run(
+                run_hash=algorithm.aim_run_hash,
+                repo=repo,
+            )
+            logger.info(f"Resuming tracking of Run {algorithm.aim_run_hash}")
+        else:
+            # Start tracking a new run
+            self.run = aim.Run(
+                experiment=name,
+                repo=repo,
+                log_system_params=True,
+            )
+            algorithm.aim_run_hash = self.run.hash
+            logger.info(f"Tracking new run, Run {algorithm.aim_run_hash}")
+
+        # Save configuration
+        self.run["hparams"] = algorithm.args.__dict__
+
+        # Set tags
+        benchmark = f"benchmark: {project}"
+        dataset = f"dataset: {algorithm.args.dataset}"
+        data_setting = "setting: {}_lb{}_ulb{}".format(
+            algorithm.args.dataset,
+            algorithm.args.num_labels,
+            algorithm.args.ulb_num_labels,
+        )
+        alg = f"alg: {algorithm.args.algorithm}"
+        cls_alg = f"cls_alg: {algorithm.args.cls_algorithm}"
+        self.run.add_tag(benchmark)
+        self.run.add_tag(dataset)
+        self.run.add_tag(data_setting)
+        self.run.add_tag(alg)
+        self.run.add_tag(cls_alg)
+
+    def after_train_step(self, algorithm):
+        """Log the metric values in the log dictionary to Aim.
+
+        Args:
+            algorithm (AlgorithmBase): The training algorithm.
+        """
+        if self.every_n_iters(algorithm, algorithm.num_log_iter):
+            for key, item in algorithm.log_dict.items():
+                self.run.track(item, name=key, step=algorithm.it)
+
+        if self.every_n_iters(algorithm, algorithm.num_eval_iter):
+            self.run.track(algorithm.best_eval_mae, name="eval/best-mae", step=algorithm.it)
