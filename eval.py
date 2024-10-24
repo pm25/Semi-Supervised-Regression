@@ -92,7 +92,7 @@ if __name__ == "__main__":
 
     print(f"Loading the Model: {args.load_path}")
     try:
-        checkpoint = torch.load(args.load_path)
+        checkpoint = torch.load(args.load_path, map_location="cpu", weights_only=False)
     except FileNotFoundError:
         print(f"Error: Checkpoint file {args.load_path} not found.")
         exit(1)

@@ -18,7 +18,7 @@ from torch.hub import load_state_dict_from_url
 
 def load_checkpoint(model, checkpoint_path):
     if checkpoint_path and os.path.isfile(checkpoint_path):
-        checkpoint = torch.load(checkpoint_path, map_location="cpu")
+        checkpoint = torch.load(checkpoint_path, map_location="cpu", weights_only=False)
     else:
         checkpoint = load_state_dict_from_url(checkpoint_path, map_location="cpu")
 

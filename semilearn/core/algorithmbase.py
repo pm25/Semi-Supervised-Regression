@@ -482,7 +482,7 @@ class AlgorithmBase:
         """
         Load a model and the necessary parameters for resuming training.
         """
-        checkpoint = torch.load(load_path, map_location="cpu")
+        checkpoint = torch.load(load_path, map_location="cpu", weights_only=False)
 
         self.model.load_state_dict(checkpoint["model"])
         self.ema_model.load_state_dict(checkpoint["ema_model"])
