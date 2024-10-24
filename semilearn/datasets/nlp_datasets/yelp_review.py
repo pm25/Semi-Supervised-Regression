@@ -67,7 +67,7 @@ class YELP_REVIEW(Dataset):
             texts.append((data[idx]["ori"], aug_0, aug_1))
             labels.append(float(data[idx]["label"]))
 
-        self._texts = np.array(texts)
+        self._texts = np.array(texts, dtype="object")
         self._labels = np.array(labels, dtype=np.float32)
 
     def __len__(self) -> int:

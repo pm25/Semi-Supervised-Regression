@@ -59,7 +59,7 @@ class UTKFACE(VisionDataset):
             raise RuntimeError("Dataset not found. You can use download=True to download it")
 
         metadata = pd.read_csv(self._meta_folder / f"{split}.csv")
-        self._file_paths = metadata["file_name"].apply(lambda x: self._images_folder / x).to_numpy()
+        self._file_paths = metadata["file_name"].apply(lambda x: self._images_folder / x).to_numpy(dtype="object")
         self._labels = metadata["label"].to_numpy(dtype=np.float32)
 
     def __len__(self) -> int:
