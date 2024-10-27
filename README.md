@@ -43,6 +43,8 @@
 <p align="center">
   Explore the following resources:
   <br />
+  <a href="">📄 arXiv Paper (🚧 Coming Soon)</a>
+  ·
   <a href="./results/README.md">🗃️ Experiment Logs</a>
   ·
   <a href="./visualization/README.md">✨ Feature Visualizations</a>
@@ -67,11 +69,12 @@
 
 ## 1. Introduction
 
-[![RankUp Illustration][rankup-illustration]](https://github.com/pm25/semi-supervised-regression)
-
-<!-- -   Paper Link: []() -->
-
--   Github Link: [https://github.com/pm25/semi-supervised-regression](https://github.com/pm25/semi-supervised-regression)
+<div align="center">
+  <img src="https://pm25.github.io/Research-Figures/rankup/figures/rankup-illustration.png" alt="RankUp Illustration" height="250">
+  <br/>
+  Paper Link: <a href="https://arxiv.org">🚧 Coming Soon</a>
+</div>
+<br/>
 
 This repository contains the official code and documentation for the paper _"RankUp: Boosting Semi-Supervised Regression with an Auxiliary Ranking Classifier"_. Here, you’ll find implementations of the proposed methods (RankUp, ARC, and RDA), alongside related works, experiment logs, feature visualizations, datasets, and hyperparameter settings used in our experiments. The code is adapted from the popular semi-supervised classification framework, [USB](https://github.com/microsoft/semi-supervised-learning). We are deeply grateful to the USB team for their excellent framework, which played a crucial role in the development of our research and made our work possible!
 
@@ -214,14 +217,7 @@ This project is licensed under the MIT License. See [LICENSE](LICENSE) for more 
 If you find this repository useful, please consider citing our paper or giving this repository a star. Your support is greatly appreciated!
 
 ```
-@inproceedings{,
-  doi = {},
-  url = {},
-  author = {Pin-Yen Huang, Szu-Wei Fu and Yu Tsao},
-  title = {RankUp: Boosting Semi-Supervised Regression with an Auxiliary Ranking Classifier},
-  booktitle = {}
-  year = {2024}
-}
+🚧 Coming Soon
 ```
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
@@ -240,4 +236,3 @@ If you find this repository useful, please consider citing our paper or giving t
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
 
 [linkedin-url]: https://linkedin.com/in/py-huang
-[rankup-illustration]: figures/rankup-illustration.png
