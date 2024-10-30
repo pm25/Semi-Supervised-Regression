@@ -43,7 +43,7 @@
 <p align="center">
   Explore the following resources:
   <br />
-  <a href="">📄 arXiv Paper (🚧 Coming Soon)</a>
+  <a href="https://arxiv.org/abs/2410.22124">📄 arXiv Paper</a>
   ·
   <a href="./results/README.md">🗃️ Experiment Logs</a>
   ·
@@ -72,7 +72,7 @@
 <div align="center">
   <img src="https://pm25.github.io/Research-Figures/rankup/figures/rankup-illustration.png" alt="RankUp Illustration" height="250">
   <br/>
-  Paper Link: <a href="https://arxiv.org">🚧 Coming Soon</a>
+  Paper Link: <a href="https://arxiv.org/abs/2410.22124">https://arxiv.org/abs/2410.22124</a>
 </div>
 <br/>
 
