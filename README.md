@@ -217,7 +217,14 @@ This project is licensed under the MIT License. See [LICENSE](LICENSE) for more 
 If you find this repository useful, please consider citing our paper or giving this repository a star. Your support is greatly appreciated!
 
 ```
-🚧 Coming Soon
+@inproceedings{
+  huang2024rankup,
+  title={RankUp: Boosting Semi-Supervised Regression with an Auxiliary Ranking Classifier},
+  author={Pin-Yen Huang and Szu-Wei Fu and Yu Tsao},
+  booktitle={The Thirty-eighth Annual Conference on Neural Information Processing Systems},
+  year={2024},
+  url={https://openreview.net/forum?id=d2lPM1Aczs}
+}
 ```
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
