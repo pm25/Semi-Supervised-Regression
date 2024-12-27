@@ -33,9 +33,9 @@ class WANDBHook(Hook):
         ]
 
     def before_run(self, algorithm):
-        # job_id = '_'.join(algorithm.args.save_name.split('_')[:-1])
         name = algorithm.save_name
         project = "ssr_" + algorithm.save_dir.split("/")[-1]
+        group = "_".join(algorithm.args.save_name.split("_")[:-1])
 
         # tags
         benchmark = f"benchmark: {project}"
@@ -54,7 +54,7 @@ class WANDBHook(Hook):
         if not os.path.exists(save_dir):
             os.makedirs(save_dir)
 
-        self.run = wandb.init(name=name, tags=tags, config=algorithm.args.__dict__, project=project, resume=resume, dir=save_dir)
+        self.run = wandb.init(name=name, tags=tags, config=algorithm.args.__dict__, project=project, group=group, resume=resume, dir=save_dir)
 
     def after_train_step(self, algorithm):
         if self.every_n_iters(algorithm, algorithm.num_log_iter):

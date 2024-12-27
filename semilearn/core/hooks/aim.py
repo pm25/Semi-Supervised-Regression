@@ -2,11 +2,9 @@
 # Modifications Copyright (c) 2024 Pin-Yen Huang.
 # Licensed under the MIT License.
 
-import os
 import aim
 
 from .hook import Hook
-from semilearn.core.utils import get_logger
 
 
 class AimHook(Hook):
@@ -14,52 +12,44 @@ class AimHook(Hook):
     A hook for tracking training progress with Aim.
     """
 
+    def __init__(self):
+        super().__init__()
+        self.log_key_list = [
+            "train/sup_loss",
+            "train/unsup_loss",
+            "train/total_loss",
+            "train/util_ratio",
+            "train/run_time",
+            "train/prefetch_time",
+            "lr",
+            "eval/mae",
+            "eval/mse",
+            "eval/r2",
+            "eval/lcc",
+            "eval/srcc",
+            "eval/ktau",
+            "eval/gmae",
+        ]
+
     def before_run(self, algorithm):
-        """Setup the Aim tracking. Either create a new run or resume an existing one if
-        the algorithm has a run hash.
+        """Setup the Aim tracking.
 
         Args:
             algorithm (AlgorithmBase): The training algorithm.
         """
-        # Initialize run
+        # initialize aim run
         name = algorithm.save_name
         project = algorithm.save_dir.split("/")[-1]
-        repo = os.path.join(algorithm.args.save_dir, "aim", algorithm.args.save_name)
+        repo = algorithm.args.save_dir.split("/")[-2]
+        self.run = aim.Run(experiment=name, repo=repo, log_system_params=True)
 
-        logger = get_logger(
-            name=algorithm.args.save_name,
-            save_path=os.path.join(algorithm.args.save_dir, algorithm.args.save_name),
-            level="INFO",
-        )
-
-        if hasattr(algorithm, "aim_run_hash"):
-            # Resume tracking
-            self.run = aim.Run(
-                run_hash=algorithm.aim_run_hash,
-                repo=repo,
-            )
-            logger.info(f"Resuming tracking of Run {algorithm.aim_run_hash}")
-        else:
-            # Start tracking a new run
-            self.run = aim.Run(
-                experiment=name,
-                repo=repo,
-                log_system_params=True,
-            )
-            algorithm.aim_run_hash = self.run.hash
-            logger.info(f"Tracking new run, Run {algorithm.aim_run_hash}")
-
-        # Save configuration
+        # set configuration
         self.run["hparams"] = algorithm.args.__dict__
 
-        # Set tags
+        # set tags
         benchmark = f"benchmark: {project}"
         dataset = f"dataset: {algorithm.args.dataset}"
-        data_setting = "setting: {}_lb{}_ulb{}".format(
-            algorithm.args.dataset,
-            algorithm.args.num_labels,
-            algorithm.args.ulb_num_labels,
-        )
+        data_setting = f"setting: {algorithm.args.dataset}_lb{algorithm.args.num_labels}_ulb{algorithm.args.ulb_num_labels}"
         alg = f"alg: {algorithm.args.algorithm}"
         cls_alg = f"cls_alg: {algorithm.args.cls_algorithm}"
         self.run.add_tag(benchmark)
@@ -76,7 +66,8 @@ class AimHook(Hook):
         """
         if self.every_n_iters(algorithm, algorithm.num_log_iter):
             for key, item in algorithm.log_dict.items():
-                self.run.track(item, name=key, step=algorithm.it)
+                if key in self.log_key_list:
+                    self.run.track(item, name=key, step=algorithm.it)
 
         if self.every_n_iters(algorithm, algorithm.num_eval_iter):
             self.run.track(algorithm.best_eval_mae, name="eval/best-mae", step=algorithm.it)

@@ -461,10 +461,6 @@ class AlgorithmBase:
             # Using a scheduler, so save its state dict
             save_dict["scheduler"] = self.scheduler.state_dict()
 
-        if hasattr(self, "aim_run_hash"):
-            # Using Aim, so save the run hash so that tracking can be resumed
-            save_dict["aim_run_hash"] = self.aim_run_hash
-
         return save_dict
 
     def save_model(self, save_name, save_path):
@@ -497,10 +493,6 @@ class AlgorithmBase:
         if self.scheduler is not None and "scheduler" in checkpoint:
             # Using a scheduler, so load its state dict
             self.scheduler.load_state_dict(checkpoint["scheduler"])
-
-        if "aim_run_hash" in checkpoint:
-            # Using Aim, so load the run hash so that tracking can be resumed
-            self.aim_run_hash = checkpoint["aim_run_hash"]
 
         self.print_fn("Model loaded")
 
