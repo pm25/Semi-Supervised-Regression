@@ -9,9 +9,8 @@ import os
 
 
 def create_configuration(cfg, cfg_file):
-    cfg["save_name"] = "{alg}_{cls_alg}_{dataset}_lb{num_lb}_s{seed}".format(
+    cfg["save_name"] = "{alg}_{dataset}_lb{num_lb}_s{seed}".format(
         alg=cfg["algorithm"],
-        cls_alg=str(cfg["cls_algorithm"]).lower(),
         dataset=cfg["dataset"],
         num_lb=cfg["num_labels"],
         seed=cfg["seed"],
@@ -25,10 +24,7 @@ def create_configuration(cfg, cfg_file):
     cfg["resume"] = True
     cfg["load_path"] = "{}/{}/latest_model.pth".format(cfg["save_dir"], cfg["save_name"])
 
-    if cfg["cls_algorithm"] is None:
-        alg_file = cfg_file + cfg["algorithm"] + "/"
-    else:
-        alg_file = cfg_file + "rankup/"
+    alg_file = cfg_file + cfg["algorithm"] + "/"
 
     if not os.path.exists(alg_file):
         os.mkdir(alg_file)
@@ -44,63 +40,52 @@ def create_configuration(cfg, cfg_file):
             w.write("\n")
 
 
-def get_algorithm_specific_config(reg_algorithm, cls_algorithm):
+def get_algorithm_specific_config(algorithm):
     alg_cfg = {}
 
     # regression algorithms
-    if reg_algorithm == "pimodel":
+    if algorithm == "pimodel":
         alg_cfg["uratio"] = 1
         alg_cfg["reg_ulb_loss_ratio"] = 0.1
         alg_cfg["reg_unsup_warm_up"] = 0.4
-    elif reg_algorithm == "meanteacher":
+    elif algorithm == "meanteacher":
         alg_cfg["uratio"] = 1
         alg_cfg["reg_ulb_loss_ratio"] = 0.1
         alg_cfg["reg_unsup_warm_up"] = 0.4
-    elif reg_algorithm == "mixmatch":
+    elif algorithm == "mixmatch":
         alg_cfg["uratio"] = 1
         alg_cfg["reg_ulb_loss_ratio"] = 0.1
         alg_cfg["reg_unsup_warm_up"] = 0.4
         alg_cfg["reg_mixup_alpha"] = 0.5
         alg_cfg["reg_mixup_manifold"] = True
-    elif reg_algorithm == "ucvme":
+    elif algorithm == "ucvme":
         alg_cfg["uratio"] = 1
         alg_cfg["reg_ulb_loss_ratio"] = 0.05
         alg_cfg["dropout_rate"] = 0.05
         alg_cfg["num_ensemble"] = 5
-    elif reg_algorithm == "clss":
+    elif algorithm == "clss":
         alg_cfg["uratio"] = 0.25
         alg_cfg["reg_lb_ctr_loss_ratio"] = 1.0
         alg_cfg["reg_ulb_ctr_loss_ratio"] = 0.05
         alg_cfg["reg_ulb_rank_loss_ratio"] = 0.01
         alg_cfg["reg_lambda_val"] = 2.0
-    elif reg_algorithm == "rda":
+    elif algorithm == "rankup":
+        alg_cfg["uratio"] = 1
+        alg_cfg["cls_loss_ratio"] = 0.2
+        alg_cfg["cls_ulb_loss_ratio"] = 1.0
+        alg_cfg["hard_label"] = True
+        alg_cfg["T"] = 0.5
+        alg_cfg["p_cutoff"] = 0.95
+    elif algorithm == "rda":
         alg_cfg["uratio"] = 1
         alg_cfg["reg_ulb_loss_ratio"] = 1.0
         alg_cfg["reg_unsup_warm_up"] = 0.4
         alg_cfg["rda_num_refine_iter"] = 1024
-
-    # classification algorithms
-    if cls_algorithm == "supervised":
-        alg_cfg["cls_loss_ratio"] = 0.2
-    elif cls_algorithm == "pseudolabel":
-        alg_cfg["uratio"] = max(1, alg_cfg.get("uratio", 0))
-        alg_cfg["cls_loss_ratio"] = 0.2
-        alg_cfg["cls_ulb_loss_ratio"] = 0.1
-        alg_cfg["cls_unsup_warm_up"] = 0.4
-        alg_cfg["hard_label"] = True
-        alg_cfg["p_cutoff"] = 0.95
-    elif cls_algorithm == "pimodel":
-        alg_cfg["uratio"] = max(1, alg_cfg.get("uratio", 0))
-        alg_cfg["cls_loss_ratio"] = 0.2
-        alg_cfg["cls_ulb_loss_ratio"] = 0.1
-        alg_cfg["cls_unsup_warm_up"] = 0.4
-    elif cls_algorithm == "meanteacher":
-        alg_cfg["uratio"] = max(1, alg_cfg.get("uratio", 0))
-        alg_cfg["cls_loss_ratio"] = 0.2
-        alg_cfg["cls_ulb_loss_ratio"] = 0.1
-        alg_cfg["cls_unsup_warm_up"] = 0.4
-    elif cls_algorithm == "fixmatch":
-        alg_cfg["uratio"] = max(1, alg_cfg.get("uratio", 0))
+    elif algorithm == "rankuprda":
+        alg_cfg["uratio"] = 1
+        alg_cfg["reg_ulb_loss_ratio"] = 1.0
+        alg_cfg["reg_unsup_warm_up"] = 0.4
+        alg_cfg["rda_num_refine_iter"] = 1024
         alg_cfg["cls_loss_ratio"] = 0.2
         alg_cfg["cls_ulb_loss_ratio"] = 1.0
         alg_cfg["hard_label"] = True
@@ -113,8 +98,7 @@ def get_algorithm_specific_config(reg_algorithm, cls_algorithm):
 def create_usb_nlp_config(alg, seed, dataset, net, num_labels, port, lr, weight_decay, layer_decay, max_length, warmup_epoch=5, amp=False):
     cfg = {}
 
-    cfg["algorithm"] = alg[0]
-    cfg["cls_algorithm"] = alg[1]
+    cfg["algorithm"] = alg
 
     # save config
     cfg["save_dir"] = "./saved_models/nlp"
@@ -137,7 +121,7 @@ def create_usb_nlp_config(alg, seed, dataset, net, num_labels, port, lr, weight_
     cfg["eval_batch_size"] = 8
     cfg["ema_m"] = 0.0
 
-    alg_cfg = get_algorithm_specific_config(alg[0], alg[1])
+    alg_cfg = get_algorithm_specific_config(alg)
     cfg.update(alg_cfg)
 
     # optimization config
@@ -183,24 +167,7 @@ def exp_usb_speech(dataset="yelp_review", label_amount=250, seed=0, port=10001):
     os.makedirs(configs_dir, exist_ok=True)
     os.makedirs(saved_dir, exist_ok=True)
 
-    algs = [
-        ("supervised", None),
-        ("fullysupervised", None),
-        ("pimodel", None),
-        ("meanteacher", None),
-        ("ucvme", None),
-        ("clss", None),
-        ("mixmatch", None),
-        ("rda", None),
-        ("supervised", "supervised"),
-        ("supervised", "pimodel"),
-        ("supervised", "meanteacher"),
-        ("supervised", "fixmatch"),
-        ("pimodel", "fixmatch"),
-        ("meanteacher", "fixmatch"),
-        ("mixmatch", "fixmatch"),
-        ("rda", "fixmatch"),
-    ]
+    algs = ["supervised", "fullysupervised", "pimodel", "meanteacher", "ucvme", "clss", "mixmatch", "rankup", "rda", "rankuprda"]
 
     net = "bert_base"
     weight_decay = 5e-4
@@ -232,7 +199,7 @@ if __name__ == "__main__":
     label_amount = {
         "yelp_review": [250],
     }
-    seeds = [0, 1, 2]
+    seeds = [0]
 
     for dataset, label_amount_list in label_amount.items():
         dist_port = list(range(10001, 10001 + len(label_amount_list) * len(seeds)))
