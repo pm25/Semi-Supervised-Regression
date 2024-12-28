@@ -9,7 +9,7 @@ from inspect import signature
 from collections import OrderedDict
 
 import torch
-from torch.cuda.amp import GradScaler, autocast
+from torch.amp import GradScaler, autocast
 from scipy.stats import pearsonr, spearmanr, kendalltau, gmean
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 
@@ -77,7 +77,7 @@ class AlgorithmBase:
         self.tb_log = tb_log
         self.print_fn = print if logger is None else logger.info
         self.ngpus_per_node = torch.cuda.device_count()
-        self.loss_scaler = GradScaler()
+        self.loss_scaler = GradScaler('cuda')
         self.amp_cm = autocast if self.use_amp else contextlib.nullcontext
         self.gpu = args.gpu
         self.rank = args.rank

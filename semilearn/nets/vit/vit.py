@@ -8,7 +8,7 @@ import torch
 import torch.nn as nn
 import torch.utils.checkpoint
 from semilearn.nets.utils import load_checkpoint
-from timm.models.layers import DropPath, to_2tuple
+from timm.layers import DropPath, to_2tuple
 
 
 class PatchEmbed(nn.Module):
