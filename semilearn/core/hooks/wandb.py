@@ -42,8 +42,7 @@ class WANDBHook(Hook):
         dataset = f"dataset: {algorithm.args.dataset}"
         data_setting = f"setting: {algorithm.args.dataset}_lb{algorithm.args.num_labels}_ulb{algorithm.args.ulb_num_labels}"
         alg = f"alg: {algorithm.args.algorithm}"
-        cls_alg = f"cls_alg: {algorithm.args.cls_algorithm}"
-        tags = [benchmark, dataset, data_setting, alg, cls_alg]
+        tags = [benchmark, dataset, data_setting, alg]
         if algorithm.args.resume:
             resume = "auto"
         else:

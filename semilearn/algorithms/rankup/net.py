@@ -7,9 +7,9 @@ import torch.nn as nn
 from semilearn.nets.utils import init_weights
 
 
-class RankUp(nn.Module):
+class RankUp_Net(nn.Module):
     """
-    RankUp implementation with a auxiliary ranking classifier (ARC).
+    RankUp_Net implementation.
 
     Attributes:
         backbone (nn.Module): The underlying backbone model.
@@ -26,17 +26,14 @@ class RankUp(nn.Module):
         self.arc_classifier = nn.Linear(self.num_features, 2)
         self.arc_classifier.apply(init_weights)
 
-    def forward(self, x, use_arc=False, only_fc=False, targets=None, **kwargs):
+    def forward(self, x, use_arc=False, targets=None, **kwargs):
         if not use_arc:
-            return self.backbone(x, only_fc=only_fc, **kwargs)
-        if only_fc:
-            logits = self.arc_classifier(x)
-            logits_mat, targets_mat = self.compute_rank_logits(logits, targets)
-            return {"logits": logits_mat, "targets": targets_mat}
+            return self.backbone(x, **kwargs)
         feat = self.backbone(x, only_feat=True)
-        logits = self.arc_classifier(feat)
-        logits_mat, targets_mat = self.compute_rank_logits(logits, targets)
-        return {"logits": logits_mat, "feat": feat, "targets": targets_mat}
+        logits = self.backbone(feat, only_fc=True)
+        logits_arc = self.arc_classifier(feat)
+        logits_mat, targets_mat = self.compute_rank_logits(logits_arc, targets)
+        return {"logits": logits, "logits_arc": logits_mat, "feat": feat, "targets_arc": targets_mat}
 
     def compute_rank_logits(self, logits, targets=None):
         logits_mat = logits.unsqueeze(dim=0) - logits.unsqueeze(dim=1)
@@ -52,17 +49,5 @@ class RankUp(nn.Module):
         return logits_mat, None
 
     def group_matcher(self, coarse=False):
-        if hasattr(self.backbone, "backbone"):
-            # TODO: better way
-            matcher = self.backbone.backbone.group_matcher(coarse, prefix="backbone.backbone")
-        else:
-            matcher = self.backbone.group_matcher(coarse, prefix="backbone.")
+        matcher = self.backbone.group_matcher(coarse, prefix="backbone.")
         return matcher
-
-
-def rankup_wrapper(net_builder):
-    def wrapper(*args, **kwargs):
-        model = net_builder(*args, **kwargs)
-        return RankUp(model)
-
-    return wrapper

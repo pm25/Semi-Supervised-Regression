@@ -14,18 +14,16 @@ class BasicDataset(Dataset):
     Returns both original and augmented text. Augmented texts can be None.
     """
 
-    def __init__(self, reg_alg, cls_alg, data, targets=None, is_ulb=False, *args, **kwargs):
+    def __init__(self, reg_alg, data, targets=None, is_ulb=False, *args, **kwargs):
         """
         Args:
             reg_alg (str): Algorithm for regression output.
-            cls_alg (str): Algorithm for classification (ARC) output.
             data (list): List of text data along with two augmented texts (e.g., [text, aug_text1 (or None), aug_text2 (or None)]).
             targets (list or None): Target labels corresponding to the images.
             is_ulb (bool): Indicates if the dataset is unlabeled.
         """
         super(BasicDataset, self).__init__()
         self.reg_alg = reg_alg
-        self.cls_alg = cls_alg
         self.data = data
         self.targets = targets
         self.is_ulb = is_ulb
@@ -76,19 +74,11 @@ class BasicDataset(Dataset):
         # for regression algorithms
         if self.reg_alg == "fullysupervised" or self.reg_alg == "supervised":
             data_keys.update({"idx_ulb"})
+        elif self.reg_alg == "rankup":
+            data_keys.update({"idx_ulb", "x_ulb_w", "x_ulb_s"})
         elif self.reg_alg == "pimodel" or self.reg_alg == "meanteacher" or self.reg_alg == "mixmatch":
             data_keys.update({"idx_ulb", "x_ulb_w", "x_ulb_w_2"})
         else:
             data_keys.update({"idx_ulb", "x_ulb_w"})
-
-        # for classification algorithms
-        if self.cls_alg == "fullysupervised" or self.cls_alg == "supervised":
-            data_keys.update({"idx_ulb"})
-        elif self.cls_alg == "pseudolabel":
-            data_keys.update({"idx_ulb", "x_ulb_w"})
-        elif self.cls_alg == "pimodel" or self.cls_alg == "meanteacher" or self.cls_alg == "mixmatch":
-            data_keys.update({"idx_ulb", "x_ulb_w", "x_ulb_w_2"})
-        else:
-            data_keys.update({"idx_ulb", "x_ulb_w", "x_ulb_s"})
 
         return data_keys

@@ -4,7 +4,7 @@
 import torch
 
 from semilearn.core.hooks import Hook
-from semilearn.cls_algorithms.utils import smooth_targets
+from semilearn.algorithms.utils import smooth_targets
 
 
 class PseudoLabelingHook(Hook):

@@ -15,11 +15,10 @@ class BasicDataset(Dataset):
     and return both weakly and strongly augmented images.
     """
 
-    def __init__(self, reg_alg, cls_alg, data, targets=None, transform=None, is_ulb=False, strong_transform=None, sample_rate=16000, *args, **kwargs):
+    def __init__(self, reg_alg, data, targets=None, transform=None, is_ulb=False, strong_transform=None, sample_rate=16000, *args, **kwargs):
         """
         Args:
             reg_alg (str): Algorithm for regression output.
-            cls_alg (str): Algorithm for classification (ARC) output.
             data (list): List of audio data.
             targets (list or None): Target labels corresponding to the images.
             is_ulb (bool): Indicates if the dataset is unlabeled.
@@ -29,7 +28,6 @@ class BasicDataset(Dataset):
         """
         super(BasicDataset, self).__init__()
         self.reg_alg = reg_alg
-        self.cls_alg = cls_alg
         self.data = data
         self.targets = targets
         self.transform = transform
@@ -75,7 +73,7 @@ class BasicDataset(Dataset):
     def _check_transform(self):
         """Ensure strong augmentation is used if required by the algorithm."""
         if self.strong_transform is None and self.is_ulb:
-            assert self.cls_alg not in ["fixmatch"], f"cls_alg {self.cls_alg} requires strong augmentation"
+            assert self.reg_alg not in ["rankup"], f"reg_alg {self.reg_alg} requires strong augmentation"
 
     def _determine_data_keys(self):
         """Determine the required output data based on the algorithm type."""
@@ -88,20 +86,12 @@ class BasicDataset(Dataset):
         # for regression algorithms
         if self.reg_alg == "fullysupervised" or self.reg_alg == "supervised":
             data_keys.update({"idx_ulb"})
+        elif self.reg_alg == "rankup":
+            data_keys.update({"idx_ulb", "x_ulb_w", "x_ulb_s"})
         elif self.reg_alg == "pimodel" or self.reg_alg == "meanteacher" or self.reg_alg == "mixmatch":
             data_keys.update({"idx_ulb", "x_ulb_w", "x_ulb_w_2"})
         else:
             data_keys.update({"idx_ulb", "x_ulb_w"})
-
-        # for classification algorithms
-        if self.cls_alg == "fullysupervised" or self.cls_alg == "supervised":
-            data_keys.update({"idx_ulb"})
-        elif self.cls_alg == "pseudolabel":
-            data_keys.update({"idx_ulb", "x_ulb_w"})
-        elif self.cls_alg == "pimodel" or self.cls_alg == "meanteacher" or self.cls_alg == "mixmatch":
-            data_keys.update({"idx_ulb", "x_ulb_w", "x_ulb_w_2"})
-        else:
-            data_keys.update({"idx_ulb", "x_ulb_w", "x_ulb_s"})
 
         return data_keys
 

@@ -9,4 +9,3 @@ from .bert import bert_base
 from .wave2vecv2 import wave2vecv2_base
 from .hubert import hubert_base
 from .whisper import whisper_base
-from .rankup import rankup_wrapper

@@ -51,12 +51,10 @@ class AimHook(Hook):
         dataset = f"dataset: {algorithm.args.dataset}"
         data_setting = f"setting: {algorithm.args.dataset}_lb{algorithm.args.num_labels}_ulb{algorithm.args.ulb_num_labels}"
         alg = f"alg: {algorithm.args.algorithm}"
-        cls_alg = f"cls_alg: {algorithm.args.cls_algorithm}"
         self.run.add_tag(benchmark)
         self.run.add_tag(dataset)
         self.run.add_tag(data_setting)
         self.run.add_tag(alg)
-        self.run.add_tag(cls_alg)
 
     def after_train_step(self, algorithm):
         """Log the metric values in the log dictionary to Aim.

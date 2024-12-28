@@ -26,7 +26,6 @@ from semilearn.core.utils import (
     over_write_args_from_file,
     send_model_cuda,
 )
-from semilearn.cls_algorithms import get_cls_algorithm, name2clsalg
 
 
 # custom function to prettify warning messages
@@ -68,8 +67,6 @@ def get_config():
     parser.add_argument("--ema_m", type=float, default=0.999, help="EMA momentum for eval_model")
     parser.add_argument("--reg_criterion", type=str, default="l1", choices=["l1", "mse"])
     parser.add_argument("--reg_ulb_loss_ratio", type=float, default=1.0)
-    parser.add_argument("--cls_ulb_loss_ratio", type=float, default=1.0)
-    parser.add_argument("--cls_loss_ratio", type=float, default=1.0)
 
     """
     Optimizer Configurations
@@ -96,8 +93,6 @@ def get_config():
     parser.add_argument("--use_cat", type=str2bool, default=True, help="Use cat operation in algorithms")
     parser.add_argument("--amp", type=str2bool, default=False, help="Use mixed precision training")
     parser.add_argument("--clip_grad", type=float, default=0)
-    ## classification algorithm setting
-    parser.add_argument("-cls_alg", "--cls_algorithm", type=str, default=None, help="Semi-supervised classification algorithm")
 
     """
     Data Configurations
@@ -152,16 +147,6 @@ def get_config():
             default=argument.default,
             help=argument.help,
         )
-
-    # add classification algorithm specific parameters
-    if args.cls_algorithm is not None:
-        for argument in name2clsalg[args.cls_algorithm].get_argument():
-            parser.add_argument(
-                argument.name,
-                type=argument.type,
-                default=argument.default,
-                help=argument.help,
-            )
 
     args = parser.parse_args()
     over_write_args_from_file(args, args.c)
@@ -276,10 +261,7 @@ def main_worker(gpu, ngpus_per_node, args):
 
     # build the network and set up the algorithm (RankUp, etc.)
     _net_builder = get_net_builder(args.net, args.net_from_name)
-    if args.cls_algorithm is not None:
-        model = get_cls_algorithm(args, _net_builder, tb_log, logger)
-    else:
-        model = get_algorithm(args, _net_builder, tb_log, logger)
+    model = get_algorithm(args, _net_builder, tb_log, logger)
 
     logger.info(f"Number of Trainable Parameters: {count_parameters(model.model)}")
 

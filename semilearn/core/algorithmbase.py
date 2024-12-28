@@ -13,8 +13,7 @@ from torch.cuda.amp import GradScaler, autocast
 from scipy.stats import pearsonr, spearmanr, kendalltau, gmean
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 
-from semilearn.nets import rankup_wrapper
-from semilearn.core.criterions import CELoss, ClsConsistencyLoss, RegConsistencyLoss
+from semilearn.core.criterions import RegConsistencyLoss
 from semilearn.core.hooks import (
     AimHook,
     CheckpointHook,
@@ -73,7 +72,6 @@ class AlgorithmBase:
         self.save_dir = args.save_dir
         self.resume = args.resume
         self.algorithm = args.algorithm
-        self.cls_algorithm = args.cls_algorithm
 
         # common utils arguments
         self.tb_log = tb_log
@@ -115,7 +113,7 @@ class AlgorithmBase:
         self.optimizer, self.scheduler = self.set_optimizer()
 
         # build supervised loss and unsupervised loss
-        self.reg_loss, self.reg_consistency_loss = self.set_reg_criterions()
+        self.reg_loss, self.reg_consistency_loss = self.set_criterions()
 
         # other arguments specific to the algorithm
         # self.init(**kwargs)
@@ -140,7 +138,6 @@ class AlgorithmBase:
         dataset_dict = get_dataset(
             self.args,
             self.algorithm,
-            self.cls_algorithm,
             self.args.dataset,
             self.args.num_labels,
             self.args.data_dir,
@@ -226,7 +223,7 @@ class AlgorithmBase:
         scheduler = get_cosine_schedule_with_warmup(optimizer, self.num_train_iter, num_warmup_steps=self.args.num_warmup_iter)
         return optimizer, scheduler
 
-    def set_reg_criterions(self):
+    def set_criterions(self):
         reg_loss = get_criterion(self.reg_criterion)
         reg_consistency_loss = RegConsistencyLoss()
         return reg_loss, reg_consistency_loss
@@ -235,22 +232,14 @@ class AlgorithmBase:
         """
         initialize model
         """
-        model = self.net_builder(
-            pretrained=self.args.use_pretrain,
-            pretrained_path=self.args.pretrain_path,
-            **kwargs
-        )
+        model = self.net_builder(pretrained=self.args.use_pretrain, pretrained_path=self.args.pretrain_path, **kwargs)
         return model
 
     def set_ema_model(self, **kwargs):
         """
         initialize ema model from model
         """
-        ema_model = self.net_builder(
-            pretrained=self.args.use_pretrain,
-            pretrained_path=self.args.pretrain_path,
-            **kwargs
-        )
+        ema_model = self.net_builder(pretrained=self.args.use_pretrain, pretrained_path=self.args.pretrain_path, **kwargs)
         ema_model.load_state_dict(self.model.state_dict())
         return ema_model
 
@@ -577,65 +566,3 @@ class AlgorithmBase:
         Get specified arguments into argparse for each algorithm
         """
         return {}
-
-
-class ClsAlgorithmBase(AlgorithmBase):
-    """
-    Parent class wrapping the AlgorithmBase class for classification algorithms.
-    Initializes classification-specific parameters and overrides necessary functions.
-
-    Attributes:
-        cls_ulb_loss_ratio (float): The ratio for the unsupervised loss in classification tasks.
-        cls_loss_ratio (float): The ratio for the classification loss in the overall loss with (regression + classification).
-        cls_loss: The criterion for calculating supervised classification loss.
-        cls_consistency_loss: The criterion for calculating semi-supervised consistency loss in classification.
-    """
-
-    def __init__(self, args, net_builder, tb_log=None, logger=None, **kwargs):
-        net_builder = rankup_wrapper(net_builder)
-        super().__init__(args, net_builder, tb_log, logger, **kwargs)
-        self.cls_ulb_loss_ratio = args.cls_ulb_loss_ratio
-        self.cls_loss_ratio = args.cls_loss_ratio
-        self.cls_loss, self.cls_consistency_loss = self.set_cls_criterions()
-
-    def cls_init(self, *args, **kwargs):
-        """
-        initialize classification algorithm parameters
-        """
-        pass
-
-    def set_cls_criterions(self):
-        cls_loss = CELoss()
-        cls_consistency_loss = ClsConsistencyLoss()
-        return cls_loss, cls_consistency_loss
-
-    def process_batch(self, input_args=None, **kwargs):
-        """
-        process batch data, send data to cuda
-        NOTE: **kwargs should have the same arguments to train_step function as keys to
-        work properly.
-        """
-        if input_args is None:
-            reg_input_args = signature(super().train_step).parameters
-            reg_input_args = set(reg_input_args.keys())
-            cls_input_args = signature(self.train_step).parameters
-            cls_input_args = set(cls_input_args.keys())
-            input_args = reg_input_args.union(cls_input_args)
-
-        input_dict = {}
-
-        for arg, var in kwargs.items():
-            if arg not in input_args:
-                continue
-
-            if var is None:
-                continue
-
-            # send var to cuda
-            if isinstance(var, dict):
-                var = {k: v.cuda(self.gpu) for k, v in var.items()}
-            else:
-                var = var.cuda(self.gpu)
-            input_dict[arg] = var
-
-        return input_dict

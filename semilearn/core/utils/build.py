@@ -63,7 +63,7 @@ def get_logger(name, save_path=None, level="INFO"):
     return logger
 
 
-def get_dataset(args, reg_alg, cls_alg, dataset, num_labels, data_dir="./data", include_lb_to_ulb=True):
+def get_dataset(args, reg_alg, dataset, num_labels, data_dir="./data", include_lb_to_ulb=True):
     """
     create dataset
 
@@ -78,24 +78,20 @@ def get_dataset(args, reg_alg, cls_alg, dataset, num_labels, data_dir="./data", 
     """
     from semilearn.datasets import get_cv_dataset, get_nlp_dataset, get_audio_dataset
 
-    datasets_dict = {
-        "cv": ["utkface"],
-        "audio": ["bvcc", "vcc2018"],
-        "nlp": ["yelp_review", "amazon_review"]
-    }
+    datasets_dict = {"cv": ["utkface"], "audio": ["bvcc", "vcc2018"], "nlp": ["yelp_review", "amazon_review"]}
     registered_datasets = [item for sublist in datasets_dict.values() for item in sublist]
 
     if dataset in datasets_dict["cv"]:
         lb_dset, ulb_dset, eval_dset, test_dset = get_cv_dataset(
-            args, reg_alg, cls_alg, dataset, num_labels, data_dir=data_dir, include_lb_to_ulb=include_lb_to_ulb
+            args, reg_alg, dataset, num_labels, data_dir=data_dir, include_lb_to_ulb=include_lb_to_ulb
         )
     elif dataset in datasets_dict["audio"]:
         lb_dset, ulb_dset, eval_dset, test_dset = get_audio_dataset(
-            args, reg_alg, cls_alg, dataset, num_labels, data_dir=data_dir, include_lb_to_ulb=include_lb_to_ulb
+            args, reg_alg, dataset, num_labels, data_dir=data_dir, include_lb_to_ulb=include_lb_to_ulb
         )
     elif dataset in datasets_dict["nlp"]:
         lb_dset, ulb_dset, eval_dset, test_dset = get_nlp_dataset(
-            args, reg_alg, cls_alg, dataset, num_labels, data_dir=data_dir, include_lb_to_ulb=include_lb_to_ulb
+            args, reg_alg, dataset, num_labels, data_dir=data_dir, include_lb_to_ulb=include_lb_to_ulb
         )
     else:
         raise ValueError(

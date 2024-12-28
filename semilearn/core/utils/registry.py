@@ -4,10 +4,7 @@
 
 import importlib
 
-__all__ = [
-    "ALGORITHMS",
-    "CLS_ALGORITHMS",
-]
+__all__ = ["ALGORITHMS"]
 
 
 class Register:
@@ -49,7 +46,6 @@ class Register:
 
 
 ALGORITHMS = Register("algorithms")
-CLS_ALGORITHMS = Register("cls_algorithms")
 
 
 def _handle_errors(errors):
@@ -65,18 +61,7 @@ def _handle_errors(errors):
 
 ALL_MODULES = [
     # NOTE: add all algorithms here
-    ("semilearn.algorithms", ["fullysupervised", "meanteacher", "mixmatch", "pimodel", "rda", "ucvme", "clss"]),
-    (
-        "semilearn.cls_algorithms",
-        [
-            "fixmatch",
-            "fullysupervised",
-            "pseudolabel",
-            "pimodel",
-            "meanteacher",
-            "mixmatch",
-        ],
-    ),
+    ("semilearn.algorithms", ["fullysupervised", "meanteacher", "mixmatch", "pimodel", "ucvme", "clss", "rankup", "rda"])
 ]
 
 
