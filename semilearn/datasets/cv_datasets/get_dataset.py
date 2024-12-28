@@ -9,12 +9,12 @@ from .datasetbase import BasicDataset, ImagePathDataset
 from .augmentation import get_val_transforms, get_weak_transforms, get_strong_transforms
 
 
-def get_cv_dataset(args, reg_alg, dataset_name, num_labels, data_dir="./data", include_lb_to_ulb=True):
+def get_cv_dataset(args, alg, dataset_name, num_labels, data_dir="./data", include_lb_to_ulb=True):
     """
     Get the computer vision dataset and split the training samples into labeled and unlabeled sets.
 
     Args:
-        reg_alg (str): Algorithm for regression output.
+        alg (str): Algorithm.
         dataset_name (str): The name of the dataset to load.
         num_labels (int): The number of labeled samples for the training set.
         data_dir (str): The directory from which to load the dataset.
@@ -50,11 +50,11 @@ def get_cv_dataset(args, reg_alg, dataset_name, num_labels, data_dir="./data", i
     transform_strong = get_strong_transforms(crop_size=args.img_size, crop_ratio=args.crop_ratio, dataset_name=dataset_name)
     transform_val = get_val_transforms(crop_size=args.img_size, dataset_name=dataset_name)
 
-    eval_dset = ImageDataset(reg_alg, test_data, test_targets, transform_val, False, None)
+    eval_dset = ImageDataset(alg, test_data, test_targets, transform_val, False, None)
     test_dset = None
 
-    if reg_alg == "fullysupervised":
-        lb_dset = ImageDataset(reg_alg, train_data, train_targets, transform_weak, False, transform_strong)
+    if alg == "fullysupervised":
+        lb_dset = ImageDataset(alg, train_data, train_targets, transform_weak, False, transform_strong)
         return lb_dset, None, eval_dset, test_dset
 
     lb_data, lb_targets, ulb_data, ulb_targets = split_ssl_data(
@@ -66,10 +66,10 @@ def get_cv_dataset(args, reg_alg, dataset_name, num_labels, data_dir="./data", i
         include_lb_to_ulb=include_lb_to_ulb,
     )
 
-    lb_dset = ImageDataset(reg_alg, lb_data, lb_targets, transform_weak, False, transform_strong)
-    ulb_dset = ImageDataset(reg_alg, ulb_data, ulb_targets, transform_weak, True, transform_strong)
+    lb_dset = ImageDataset(alg, lb_data, lb_targets, transform_weak, False, transform_strong)
+    ulb_dset = ImageDataset(alg, ulb_data, ulb_targets, transform_weak, True, transform_strong)
 
-    if reg_alg == "supervised":
+    if alg == "supervised":
         ulb_dset = None
 
     return lb_dset, ulb_dset, eval_dset, test_dset

@@ -26,27 +26,27 @@ class MixMatch(AlgorithmBase):
             logger to use
         - T (`float`):
             Temperature for pseudo-label sharpening
-        - reg_unsup_warm_up (`float`, *optional*, defaults to 0.4):
+        - unsup_warm_up (`float`, *optional*, defaults to 0.4):
             Ramp up for weights for unsupervised loss
-        - reg_mixup_alpha (`float`, *optional*, defaults to 0.5):
+        - mixup_alpha (`float`, *optional*, defaults to 0.5):
             Hyper-parameter of mixup
-        - reg_mixup_manifold (`bool`, *optional*, defaults to `False`):
+        - mixup_manifold (`bool`, *optional*, defaults to `False`):
             Whether or not to use manifold mixup
     """
 
     def __init__(self, args, net_builder, tb_log=None, logger=None):
         super().__init__(args, net_builder, tb_log, logger)
         # mixmatch specified arguments
-        self.reg_init(
-            reg_unsup_warm_up=args.reg_unsup_warm_up,
-            reg_mixup_alpha=args.reg_mixup_alpha,
-            reg_mixup_manifold=args.reg_mixup_manifold,
+        self.init(
+            unsup_warm_up=args.unsup_warm_up,
+            mixup_alpha=args.mixup_alpha,
+            mixup_manifold=args.mixup_manifold,
         )
 
-    def reg_init(self, reg_unsup_warm_up=0.01525, reg_mixup_alpha=0.5, reg_mixup_manifold=False):
-        self.reg_unsup_warm_up = reg_unsup_warm_up
-        self.reg_mixup_alpha = reg_mixup_alpha
-        self.reg_mixup_manifold = reg_mixup_manifold
+    def init(self, unsup_warm_up=0.01525, mixup_alpha=0.5, mixup_manifold=False):
+        self.unsup_warm_up = unsup_warm_up
+        self.mixup_alpha = mixup_alpha
+        self.mixup_manifold = mixup_manifold
 
     def train_step(self, x_lb, y_lb, x_ulb_w, x_ulb_w_2, **kwargs):
         num_lb = y_lb.shape[0]
@@ -84,20 +84,20 @@ class MixMatch(AlgorithmBase):
             # Pseudo Label
             input_labels = torch.cat([y_lb, avg_prob_x_ulb, avg_prob_x_ulb], dim=0)
             # Mix up
-            if self.reg_mixup_manifold:
+            if self.mixup_manifold:
                 inputs = torch.cat((outs_x_lb["feat"], outs_x_ulb_w1["feat"], outs_x_ulb_w2["feat"]))
             else:
                 inputs = torch.cat([x_lb, x_ulb_w, x_ulb_w_2])
-            mixed_x, mixed_y, _ = mixup_one_target(inputs, input_labels, self.reg_mixup_alpha, is_bias=True)
+            mixed_x, mixed_y, _ = mixup_one_target(inputs, input_labels, self.mixup_alpha, is_bias=True)
             mixed_x = list(torch.split(mixed_x, num_lb))
             # mixed_x = interleave(mixed_x, num_lb)
 
-            if self.reg_mixup_manifold:
-                logits = [self.model(mixed_x[0], only_fc=self.reg_mixup_manifold)]
+            if self.mixup_manifold:
+                logits = [self.model(mixed_x[0], only_fc=self.mixup_manifold)]
                 # calculate BN for only the first batch
                 self.bn_controller.freeze_bn(self.model)
                 for ipt in mixed_x[1:]:
-                    logits.append(self.model(ipt, only_fc=self.reg_mixup_manifold))
+                    logits.append(self.model(ipt, only_fc=self.mixup_manifold))
                 self.bn_controller.unfreeze_bn(self.model)
             else:
                 logits = [self.model(mixed_x[0])["logits"]]
@@ -114,11 +114,11 @@ class MixMatch(AlgorithmBase):
             logits_u = torch.cat(logits[1:], dim=0)
 
             sup_loss = self.reg_loss(logits_x, mixed_y[:num_lb], reduction="mean")
-            unsup_loss = self.reg_consistency_loss(logits_u, mixed_y[num_lb:], "mse")
+            unsup_loss = self.consistency_loss(logits_u, mixed_y[num_lb:], "mse")
 
             # set ramp_up for lambda_u
-            unsup_warmup = float(np.clip(self.it / (self.reg_unsup_warm_up * self.num_train_iter), 0.0, 1.0))
-            lambda_u = self.reg_ulb_loss_ratio * unsup_warmup
+            unsup_warmup = float(np.clip(self.it / (self.unsup_warm_up * self.num_train_iter), 0.0, 1.0))
+            lambda_u = self.ulb_loss_ratio * unsup_warmup
 
             total_loss = sup_loss + lambda_u * unsup_loss
 
@@ -133,7 +133,7 @@ class MixMatch(AlgorithmBase):
     @staticmethod
     def get_argument():
         return [
-            SSL_Argument("--reg_unsup_warm_up", float, 1 / 64, "ramp up ratio for regression unsupervised loss"),
-            SSL_Argument("--reg_mixup_alpha", float, 0.5, "parameter for Beta distribution of Mix Up"),
-            SSL_Argument("--reg_mixup_manifold", str2bool, False, "use manifold mixup (for nlp)"),
+            SSL_Argument("--unsup_warm_up", float, 1 / 64, "ramp up ratio for regression unsupervised loss"),
+            SSL_Argument("--mixup_alpha", float, 0.5, "parameter for Beta distribution of Mix Up"),
+            SSL_Argument("--mixup_manifold", str2bool, False, "use manifold mixup (for nlp)"),
         ]

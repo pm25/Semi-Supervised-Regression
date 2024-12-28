@@ -29,24 +29,24 @@ class CLSS(AlgorithmBase):
 
     def __init__(self, args, net_builder, tb_log=None, logger=None, **kwargs):
         super().__init__(args, net_builder, tb_log, logger, **kwargs)
-        self.reg_init(
-            reg_lambda_val=args.reg_lambda_val,
-            reg_lb_ctr_loss_ratio=args.reg_lb_ctr_loss_ratio,
-            reg_ulb_ctr_loss_ratio=args.reg_ulb_ctr_loss_ratio,
-            reg_ulb_rank_loss_ratio=args.reg_ulb_rank_loss_ratio,
+        self.init(
+            lambda_val=args.lambda_val,
+            lb_ctr_loss_ratio=args.lb_ctr_loss_ratio,
+            ulb_ctr_loss_ratio=args.ulb_ctr_loss_ratio,
+            ulb_rank_loss_ratio=args.ulb_rank_loss_ratio,
         )
 
-    def reg_init(
+    def init(
         self,
-        reg_lambda_val=2,
-        reg_lb_ctr_loss_ratio=1.0,
-        reg_ulb_ctr_loss_ratio=0.05,
-        reg_ulb_rank_loss_ratio=0.01,
+        lambda_val=2,
+        lb_ctr_loss_ratio=1.0,
+        ulb_ctr_loss_ratio=0.05,
+        ulb_rank_loss_ratio=0.01,
     ):
-        self.reg_lambda_val = reg_lambda_val
-        self.reg_lb_ctr_loss_ratio = reg_lb_ctr_loss_ratio
-        self.reg_ulb_ctr_loss_ratio = reg_ulb_ctr_loss_ratio
-        self.reg_ulb_rank_loss_ratio = reg_ulb_rank_loss_ratio
+        self.lambda_val = lambda_val
+        self.lb_ctr_loss_ratio = lb_ctr_loss_ratio
+        self.ulb_ctr_loss_ratio = ulb_ctr_loss_ratio
+        self.ulb_rank_loss_ratio = ulb_rank_loss_ratio
 
     def train_step(self, x_lb, y_lb, x_ulb_w, **kwargs):
         # inference and calculate sup/unsup losses
@@ -66,11 +66,11 @@ class CLSS(AlgorithmBase):
 
             sup_reg_loss = self.reg_loss(logits_x_lb, y_lb, reduction="mean")
             sup_ctr_loss = ordinal_entropy(feats_x_lb, y_lb)
-            sup_loss = sup_reg_loss + self.reg_lb_ctr_loss_ratio * sup_ctr_loss
+            sup_loss = sup_reg_loss + self.lb_ctr_loss_ratio * sup_ctr_loss
 
-            unsup_ctr_loss, ft_rank = ulb_rank(feats_x_ulb_w, self.reg_lambda_val)
-            unsup_rank_loss = ulb_rank_prdlb(logits_x_ulb_w.unsqueeze(1), self.reg_lambda_val, pred_inp=ft_rank)
-            unsup_loss = self.reg_ulb_ctr_loss_ratio * unsup_ctr_loss + self.reg_ulb_rank_loss_ratio * unsup_rank_loss
+            unsup_ctr_loss, ft_rank = ulb_rank(feats_x_ulb_w, self.lambda_val)
+            unsup_rank_loss = ulb_rank_prdlb(logits_x_ulb_w.unsqueeze(1), self.lambda_val, pred_inp=ft_rank)
+            unsup_loss = self.ulb_ctr_loss_ratio * unsup_ctr_loss + self.ulb_rank_loss_ratio * unsup_rank_loss
 
             total_loss = sup_loss + unsup_loss
 
@@ -84,8 +84,8 @@ class CLSS(AlgorithmBase):
     @staticmethod
     def get_argument():
         return [
-            SSL_Argument("--reg_lambda_val", float, 2.0),
-            SSL_Argument("--reg_lb_ctr_loss_ratio", float, 1.0),
-            SSL_Argument("--reg_ulb_ctr_loss_ratio", float, 0.05),
-            SSL_Argument("--reg_ulb_rank_loss_ratio", float, 0.01),
+            SSL_Argument("--lambda_val", float, 2.0),
+            SSL_Argument("--lb_ctr_loss_ratio", float, 1.0),
+            SSL_Argument("--ulb_ctr_loss_ratio", float, 0.05),
+            SSL_Argument("--ulb_rank_loss_ratio", float, 0.01),
         ]

@@ -63,8 +63,8 @@ class AlgorithmBase:
         self.num_eval_iter = args.num_eval_iter
         self.num_log_iter = args.num_log_iter
         self.num_iter_per_epoch = int(self.num_train_iter // self.epochs)
-        self.reg_criterion = args.reg_criterion
-        self.reg_ulb_loss_ratio = args.reg_ulb_loss_ratio
+        self.criterion = args.criterion
+        self.ulb_loss_ratio = args.ulb_loss_ratio
         self.use_cat = args.use_cat
         self.use_amp = args.amp
         self.clip_grad = args.clip_grad
@@ -113,7 +113,7 @@ class AlgorithmBase:
         self.optimizer, self.scheduler = self.set_optimizer()
 
         # build supervised loss and unsupervised loss
-        self.reg_loss, self.reg_consistency_loss = self.set_criterions()
+        self.reg_loss, self.consistency_loss = self.set_criterions()
 
         # other arguments specific to the algorithm
         # self.init(**kwargs)
@@ -224,9 +224,9 @@ class AlgorithmBase:
         return optimizer, scheduler
 
     def set_criterions(self):
-        reg_loss = get_criterion(self.reg_criterion)
-        reg_consistency_loss = RegConsistencyLoss()
-        return reg_loss, reg_consistency_loss
+        reg_loss = get_criterion(self.criterion)
+        consistency_loss = RegConsistencyLoss()
+        return reg_loss, consistency_loss
 
     def set_model(self, **kwargs):
         """

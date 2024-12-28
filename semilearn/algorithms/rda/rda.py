@@ -24,21 +24,21 @@ class RDA(AlgorithmBase):
             tensorboard logger
         - logger (`logging.Logger`):
             logger to use
-        - reg_unsup_warm_up (`float`, *optional*, defaults to 0.4):
+        - unsup_warm_up (`float`, *optional*, defaults to 0.4):
             Ramp up for weights for unsupervised loss
         - rda_num_refine_iter (`int`):
             Number of iterations to apply RDA.
     """
 
     def __init__(self, args, net_builder, tb_log=None, logger=None):
-        self.reg_init(
-            reg_unsup_warm_up=args.reg_unsup_warm_up,
+        self.init(
+            unsup_warm_up=args.unsup_warm_up,
             rda_num_refine_iter=args.rda_num_refine_iter,
         )
         super().__init__(args, net_builder, tb_log, logger)
 
-    def reg_init(self, reg_unsup_warm_up, rda_num_refine_iter):
-        self.reg_unsup_warm_up = reg_unsup_warm_up
+    def init(self, unsup_warm_up, rda_num_refine_iter):
+        self.unsup_warm_up = unsup_warm_up
         self.rda_num_refine_iter = rda_num_refine_iter
 
     def set_hooks(self):
@@ -81,10 +81,10 @@ class RDA(AlgorithmBase):
                 logits=logits_x_ulb_w,
             )
 
-            unsup_loss = self.reg_consistency_loss(logits_x_ulb_w, pseudo_label.detach(), "mse")
+            unsup_loss = self.consistency_loss(logits_x_ulb_w, pseudo_label.detach(), "mse")
 
-            unsup_warmup = np.clip(self.it / (self.reg_unsup_warm_up * self.num_train_iter), a_min=0.0, a_max=1.0)
-            total_loss = sup_loss + self.reg_ulb_loss_ratio * unsup_loss * unsup_warmup
+            unsup_warmup = np.clip(self.it / (self.unsup_warm_up * self.num_train_iter), a_min=0.0, a_max=1.0)
+            total_loss = sup_loss + self.ulb_loss_ratio * unsup_loss * unsup_warmup
 
         out_dict = self.process_out_dict(loss=total_loss, feat=feat_dict)
         log_dict = self.process_log_dict(total_loss=total_loss.item())
@@ -96,6 +96,6 @@ class RDA(AlgorithmBase):
     @staticmethod
     def get_argument():
         return [
-            SSL_Argument("--reg_unsup_warm_up", float, 0.4),
+            SSL_Argument("--unsup_warm_up", float, 0.4),
             SSL_Argument("--rda_num_refine_iter", int, 1024),
         ]

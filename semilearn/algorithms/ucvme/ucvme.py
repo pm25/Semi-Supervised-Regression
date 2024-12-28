@@ -93,10 +93,10 @@ class UCVME(AlgorithmBase):
     """
 
     def __init__(self, args, net_builder, tb_log=None, logger=None, **kwargs):
-        self.reg_init(dropout_rate=args.dropout_rate, num_ensemble=args.num_ensemble)
+        self.init(dropout_rate=args.dropout_rate, num_ensemble=args.num_ensemble)
         super().__init__(args, net_builder, tb_log, logger, **kwargs)
 
-    def reg_init(self, dropout_rate=0.05, num_ensemble=5):
+    def init(self, dropout_rate=0.05, num_ensemble=5):
         self.dropout_rate = dropout_rate
         self.num_ensemble = num_ensemble
 
@@ -171,7 +171,7 @@ class UCVME(AlgorithmBase):
             unsup_unc_loss_2 = ((logits_v_ulb_w_2 - avg_logits_v_ulb) ** 2).mean()
             unsup_loss = unsup_reg_loss + unsup_unc_loss_1 + unsup_unc_loss_2
 
-            total_loss = sup_loss + self.reg_ulb_loss_ratio * unsup_loss
+            total_loss = sup_loss + self.ulb_loss_ratio * unsup_loss
 
         out_dict = self.process_out_dict(loss=total_loss, feat=feat_dict)
         log_dict = self.process_log_dict(total_loss=total_loss.item())

@@ -23,7 +23,7 @@ layer_decay: 0.75
 amp: False
 clip_grad: 0.0
 use_cat: False
-reg_criterion: l1
+criterion: l1
 net: bert_base
 net_from_name: False
 use_pretrain: True

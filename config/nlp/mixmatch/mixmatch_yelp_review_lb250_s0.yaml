@@ -17,10 +17,10 @@ batch_size: 8
 eval_batch_size: 8
 ema_m: 0.0
 uratio: 1
-reg_ulb_loss_ratio: 0.1
-reg_unsup_warm_up: 0.4
-reg_mixup_alpha: 0.5
-reg_mixup_manifold: True
+ulb_loss_ratio: 0.1
+unsup_warm_up: 0.4
+mixup_alpha: 0.5
+mixup_manifold: True
 optim: AdamW
 lr: 1e-05
 momentum: 0.9
@@ -29,7 +29,7 @@ layer_decay: 0.75
 amp: False
 clip_grad: 0.0
 use_cat: False
-reg_criterion: l1
+criterion: l1
 net: bert_base
 net_from_name: False
 use_pretrain: True

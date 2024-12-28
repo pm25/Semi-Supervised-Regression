@@ -46,28 +46,28 @@ def get_algorithm_specific_config(algorithm):
     # regression algorithms
     if algorithm == "pimodel":
         alg_cfg["uratio"] = 1
-        alg_cfg["reg_ulb_loss_ratio"] = 0.1
-        alg_cfg["reg_unsup_warm_up"] = 0.4
+        alg_cfg["ulb_loss_ratio"] = 0.1
+        alg_cfg["unsup_warm_up"] = 0.4
     elif algorithm == "meanteacher":
         alg_cfg["uratio"] = 1
-        alg_cfg["reg_ulb_loss_ratio"] = 0.1
-        alg_cfg["reg_unsup_warm_up"] = 0.4
+        alg_cfg["ulb_loss_ratio"] = 0.1
+        alg_cfg["unsup_warm_up"] = 0.4
     elif algorithm == "mixmatch":
         alg_cfg["uratio"] = 1
-        alg_cfg["reg_ulb_loss_ratio"] = 0.1
-        alg_cfg["reg_unsup_warm_up"] = 0.4
-        alg_cfg["reg_mixup_alpha"] = 0.5
+        alg_cfg["ulb_loss_ratio"] = 0.1
+        alg_cfg["unsup_warm_up"] = 0.4
+        alg_cfg["mixup_alpha"] = 0.5
     elif algorithm == "ucvme":
         alg_cfg["uratio"] = 1
-        alg_cfg["reg_ulb_loss_ratio"] = 0.05
+        alg_cfg["ulb_loss_ratio"] = 0.05
         alg_cfg["dropout_rate"] = 0.05
         alg_cfg["num_ensemble"] = 5
     elif algorithm == "clss":
         alg_cfg["uratio"] = 0.25
-        alg_cfg["reg_lb_ctr_loss_ratio"] = 1.0
-        alg_cfg["reg_ulb_ctr_loss_ratio"] = 0.05
-        alg_cfg["reg_ulb_rank_loss_ratio"] = 0.01
-        alg_cfg["reg_lambda_val"] = 2.0
+        alg_cfg["lb_ctr_loss_ratio"] = 1.0
+        alg_cfg["ulb_ctr_loss_ratio"] = 0.05
+        alg_cfg["ulb_rank_loss_ratio"] = 0.01
+        alg_cfg["lambda_val"] = 2.0
     elif algorithm == "rankup":
         alg_cfg["uratio"] = 7
         alg_cfg["cls_loss_ratio"] = 0.2
@@ -77,13 +77,13 @@ def get_algorithm_specific_config(algorithm):
         alg_cfg["p_cutoff"] = 0.95
     elif algorithm == "rda":
         alg_cfg["uratio"] = 7
-        alg_cfg["reg_ulb_loss_ratio"] = 1.0
-        alg_cfg["reg_unsup_warm_up"] = 0.4
+        alg_cfg["ulb_loss_ratio"] = 1.0
+        alg_cfg["unsup_warm_up"] = 0.4
         alg_cfg["rda_num_refine_iter"] = 1024
     elif algorithm == "rankuprda":
         alg_cfg["uratio"] = 7
-        alg_cfg["reg_ulb_loss_ratio"] = 1.0
-        alg_cfg["reg_unsup_warm_up"] = 0.4
+        alg_cfg["ulb_loss_ratio"] = 1.0
+        alg_cfg["unsup_warm_up"] = 0.4
         alg_cfg["rda_num_refine_iter"] = 1024
         alg_cfg["cls_loss_ratio"] = 0.2
         alg_cfg["cls_ulb_loss_ratio"] = 1.0
@@ -131,7 +131,7 @@ def create_classic_config(alg, seed, dataset, net, num_labels, img_size, port, w
     cfg["amp"] = False
     cfg["clip_grad"] = 0.0
     cfg["use_cat"] = True
-    cfg["reg_criterion"] = "l1"
+    cfg["criterion"] = "l1"
 
     # net config
     cfg["net"] = net

@@ -28,7 +28,7 @@ class RankUpRDA(AlgorithmBase):
             tensorboard logger
         - logger (`logging.Logger`):
             logger to use
-        - reg_unsup_warm_up (`float`, *optional*, defaults to 0.4):
+        - unsup_warm_up (`float`, *optional*, defaults to 0.4):
             Ramp up for weights for unsupervised loss
         - rda_num_refine_iter (`int`):
             Number of iterations to apply RDA
@@ -42,7 +42,7 @@ class RankUpRDA(AlgorithmBase):
 
     def __init__(self, args, net_builder, tb_log=None, logger=None):
         self.init(
-            reg_unsup_warm_up=args.reg_unsup_warm_up,
+            unsup_warm_up=args.unsup_warm_up,
             rda_num_refine_iter=args.rda_num_refine_iter,
             cls_ulb_loss_ratio=args.cls_ulb_loss_ratio,
             cls_loss_ratio=args.cls_loss_ratio,
@@ -54,8 +54,8 @@ class RankUpRDA(AlgorithmBase):
         self.cls_loss = CELoss()
         self.cls_consistency_loss = ClsConsistencyLoss()
 
-    def init(self, reg_unsup_warm_up, rda_num_refine_iter, cls_ulb_loss_ratio, cls_loss_ratio, T, p_cutoff, hard_label):
-        self.reg_unsup_warm_up = reg_unsup_warm_up
+    def init(self, unsup_warm_up, rda_num_refine_iter, cls_ulb_loss_ratio, cls_loss_ratio, T, p_cutoff, hard_label):
+        self.unsup_warm_up = unsup_warm_up
         self.rda_num_refine_iter = rda_num_refine_iter
         self.cls_ulb_loss_ratio = cls_ulb_loss_ratio
         self.cls_loss_ratio = cls_loss_ratio
@@ -127,7 +127,7 @@ class RankUpRDA(AlgorithmBase):
                 "RDAHook",
                 logits=logits_x_ulb_w,
             )
-            reg_unsup_loss = self.reg_consistency_loss(logits_x_ulb_w, reg_pseudo_label.detach(), "mse")
+            reg_unsup_loss = self.consistency_loss(logits_x_ulb_w, reg_pseudo_label.detach(), "mse")
 
             # compute mask
             mask = self.call_hook("masking", "MaskingHook", logits_x_ulb=probs_x_ulb_w, softmax_x_ulb=False)
@@ -145,8 +145,8 @@ class RankUpRDA(AlgorithmBase):
             cls_sup_loss = self.cls_loss(logits_arc_x_lb, arc_y_lb, reduction="mean")
             cls_unsup_loss = self.cls_consistency_loss(logits_x_ulb_s, arc_pseudo_label, "ce", mask=mask)
 
-            reg_unsup_warmup = np.clip(self.it / (self.reg_unsup_warm_up * self.num_train_iter), a_min=0.0, a_max=1.0)
-            total_reg_loss = reg_sup_loss + self.reg_ulb_loss_ratio * reg_unsup_loss * reg_unsup_warmup
+            reg_unsup_warmup = np.clip(self.it / (self.unsup_warm_up * self.num_train_iter), a_min=0.0, a_max=1.0)
+            total_reg_loss = reg_sup_loss + self.ulb_loss_ratio * reg_unsup_loss * reg_unsup_warmup
             total_cls_loss = cls_sup_loss + self.cls_ulb_loss_ratio * cls_unsup_loss
             total_loss = total_reg_loss + self.cls_loss_ratio * total_cls_loss
 
@@ -157,7 +157,7 @@ class RankUpRDA(AlgorithmBase):
     @staticmethod
     def get_argument():
         return [
-            SSL_Argument("--reg_unsup_warm_up", float, 0.4),
+            SSL_Argument("--unsup_warm_up", float, 0.4),
             SSL_Argument("--rda_num_refine_iter", int, 1024),
             SSL_Argument("--cls_ulb_loss_ratio", float, 1.0),
             SSL_Argument("--cls_loss_ratio", float, 1.0),

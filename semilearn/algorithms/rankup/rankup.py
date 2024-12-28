@@ -117,7 +117,7 @@ class RankUp(AlgorithmBase):
             cls_sup_loss = self.cls_loss(logits_arc_x_lb, arc_y_lb, reduction="mean")
             cls_unsup_loss = self.cls_consistency_loss(logits_x_ulb_s, arc_pseudo_label, "ce", mask=mask)
 
-            total_reg_loss = reg_sup_loss + self.reg_ulb_loss_ratio
+            total_reg_loss = reg_sup_loss + self.ulb_loss_ratio
             total_cls_loss = cls_sup_loss + self.cls_ulb_loss_ratio * cls_unsup_loss
             total_loss = total_reg_loss + self.cls_loss_ratio * total_cls_loss
 

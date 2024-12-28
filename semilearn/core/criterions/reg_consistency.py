@@ -6,7 +6,7 @@ import torch.nn as nn
 from torch.nn import functional as F
 
 
-def reg_consistency_loss(logits, targets, name="mse", mask=None):
+def consistency_loss(logits, targets, name="mse", mask=None):
     """
     consistency regularization loss in semi-supervised learning (regression).
 
@@ -37,4 +37,4 @@ class RegConsistencyLoss(nn.Module):
     """
 
     def forward(self, logits, targets, name="mse", mask=None):
-        return reg_consistency_loss(logits, targets, name, mask)
+        return consistency_loss(logits, targets, name, mask)

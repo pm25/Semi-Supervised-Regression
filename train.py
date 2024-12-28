@@ -65,8 +65,8 @@ def get_config():
     parser.add_argument("--uratio", type=float, default=1.0, help="Ratio of unlabeled data to labeled data in each mini-batch")
     parser.add_argument("--eval_batch_size", type=int, default=16, help="Evaluation batch size")
     parser.add_argument("--ema_m", type=float, default=0.999, help="EMA momentum for eval_model")
-    parser.add_argument("--reg_criterion", type=str, default="l1", choices=["l1", "mse"])
-    parser.add_argument("--reg_ulb_loss_ratio", type=float, default=1.0)
+    parser.add_argument("--criterion", type=str, default="l1", choices=["l1", "mse"])
+    parser.add_argument("--ulb_loss_ratio", type=float, default=1.0)
 
     """
     Optimizer Configurations

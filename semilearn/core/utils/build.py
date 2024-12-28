@@ -63,13 +63,13 @@ def get_logger(name, save_path=None, level="INFO"):
     return logger
 
 
-def get_dataset(args, reg_alg, dataset, num_labels, data_dir="./data", include_lb_to_ulb=True):
+def get_dataset(args, alg, dataset, num_labels, data_dir="./data", include_lb_to_ulb=True):
     """
     create dataset
 
     Args
         args: argparse arguments
-        reg_alg: regression algorithm name, used for specific return items in __getitem__ of datasets
+        alg: regression algorithm name, used for specific return items in __getitem__ of datasets
         dataset: dataset name
         num_labels: number of labeled data in dataset
         data_dir: data folder
@@ -82,15 +82,15 @@ def get_dataset(args, reg_alg, dataset, num_labels, data_dir="./data", include_l
 
     if dataset in datasets_dict["cv"]:
         lb_dset, ulb_dset, eval_dset, test_dset = get_cv_dataset(
-            args, reg_alg, dataset, num_labels, data_dir=data_dir, include_lb_to_ulb=include_lb_to_ulb
+            args, alg, dataset, num_labels, data_dir=data_dir, include_lb_to_ulb=include_lb_to_ulb
         )
     elif dataset in datasets_dict["audio"]:
         lb_dset, ulb_dset, eval_dset, test_dset = get_audio_dataset(
-            args, reg_alg, dataset, num_labels, data_dir=data_dir, include_lb_to_ulb=include_lb_to_ulb
+            args, alg, dataset, num_labels, data_dir=data_dir, include_lb_to_ulb=include_lb_to_ulb
         )
     elif dataset in datasets_dict["nlp"]:
         lb_dset, ulb_dset, eval_dset, test_dset = get_nlp_dataset(
-            args, reg_alg, dataset, num_labels, data_dir=data_dir, include_lb_to_ulb=include_lb_to_ulb
+            args, alg, dataset, num_labels, data_dir=data_dir, include_lb_to_ulb=include_lb_to_ulb
         )
     else:
         raise ValueError(

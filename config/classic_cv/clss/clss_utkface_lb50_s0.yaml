@@ -16,10 +16,10 @@ batch_size: 32
 eval_batch_size: 256
 ema_m: 0.999
 uratio: 0.25
-reg_lb_ctr_loss_ratio: 1.0
-reg_ulb_ctr_loss_ratio: 0.05
-reg_ulb_rank_loss_ratio: 0.01
-reg_lambda_val: 2.0
+lb_ctr_loss_ratio: 1.0
+ulb_ctr_loss_ratio: 0.05
+ulb_rank_loss_ratio: 0.01
+lambda_val: 2.0
 optim: SGD
 lr: 0.01
 momentum: 0.9
@@ -28,7 +28,7 @@ layer_decay: 1.0
 amp: False
 clip_grad: 0.0
 use_cat: True
-reg_criterion: l1
+criterion: l1
 net: wrn_28_2
 net_from_name: False
 data_dir: ./data
