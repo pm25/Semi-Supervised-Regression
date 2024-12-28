@@ -45,10 +45,6 @@ class FullySupervised(AlgorithmBase):
         return out_dict, log_dict
 
     def train(self):
-        # use the original train function if training involves unlabeled data.
-        if self.cls_algorithm and self.cls_algorithm != "supervised":
-            return super().train()
-
         # lb: labeled, ulb: unlabeled
         self.model.train()
         self.call_hook("before_run")

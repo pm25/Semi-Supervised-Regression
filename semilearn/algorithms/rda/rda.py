@@ -13,7 +13,7 @@ from semilearn.algorithms.utils import SSL_Argument
 @ALGORITHMS.register("rda")
 class RDA(AlgorithmBase):
     """
-    RDA algorithm ().
+    RDA algorithm (https://arxiv.org/abs/2410.22124).
 
     Args:
         - args (`argparse`):

@@ -15,7 +15,6 @@ def get_audio_dataset(args, reg_alg, dataset_name, num_labels, data_dir="./data"
 
     Args:
         reg_alg (str): Algorithm for regression output.
-        cls_alg (str): Algorithm for classification (ARC) output.
         dataset_name (str): The name of the dataset to load.
         num_labels (int): The number of labeled samples for the training set.
         data_dir (str): The directory from which to load the dataset.

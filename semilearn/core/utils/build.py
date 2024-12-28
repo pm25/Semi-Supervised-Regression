@@ -70,7 +70,6 @@ def get_dataset(args, reg_alg, dataset, num_labels, data_dir="./data", include_l
     Args
         args: argparse arguments
         reg_alg: regression algorithm name, used for specific return items in __getitem__ of datasets
-        cls_alg: classification algorithm name, used for specific return items in __getitem__ of datasets
         dataset: dataset name
         num_labels: number of labeled data in dataset
         data_dir: data folder
