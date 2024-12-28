@@ -19,8 +19,8 @@ uratio: 7
 ulb_loss_ratio: 1.0
 unsup_warm_up: 0.4
 rda_num_refine_iter: 1024
-cls_loss_ratio: 0.2
-cls_ulb_loss_ratio: 1.0
+arc_loss_ratio: 0.2
+arc_ulb_loss_ratio: 1.0
 hard_label: True
 T: 0.5
 p_cutoff: 0.95

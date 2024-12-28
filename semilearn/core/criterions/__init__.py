@@ -4,4 +4,4 @@
 
 from .cross_entropy import ce_loss, CELoss
 from .cls_consistency import cls_consistency_loss, ClsConsistencyLoss
-from .reg_consistency import consistency_loss, RegConsistencyLoss
+from .consistency import consistency_loss, ConsistencyLoss

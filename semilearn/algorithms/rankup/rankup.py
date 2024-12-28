@@ -25,6 +25,10 @@ class RankUp(AlgorithmBase):
             tensorboard logger
         - logger (`logging.Logger`):
             logger to use
+        - arc_ulb_loss_ratio (`float`):
+            Weight for unsupervised loss in Arc
+        - arc_loss_ratio (`float`):
+            Weight for Arc loss
         - T (`float`):
             Temperature for pseudo-label sharpening
         - p_cutoff(`float`):
@@ -35,19 +39,19 @@ class RankUp(AlgorithmBase):
 
     def __init__(self, args, net_builder, tb_log=None, logger=None):
         self.init(
-            cls_ulb_loss_ratio=args.cls_ulb_loss_ratio,
-            cls_loss_ratio=args.cls_loss_ratio,
+            arc_ulb_loss_ratio=args.arc_ulb_loss_ratio,
+            arc_loss_ratio=args.arc_loss_ratio,
             T=args.T,
             p_cutoff=args.p_cutoff,
             hard_label=args.hard_label,
         )
-        super().__init__(args, net_builder, tb_log, logger)
-        self.cls_loss = CELoss()
+        self.ce_loss = CELoss()
         self.cls_consistency_loss = ClsConsistencyLoss()
+        super().__init__(args, net_builder, tb_log, logger)
 
-    def init(self, cls_ulb_loss_ratio, cls_loss_ratio, T, p_cutoff, hard_label):
-        self.cls_ulb_loss_ratio = cls_ulb_loss_ratio
-        self.cls_loss_ratio = cls_loss_ratio
+    def init(self, arc_ulb_loss_ratio, arc_loss_ratio, T, p_cutoff, hard_label):
+        self.arc_ulb_loss_ratio = arc_ulb_loss_ratio
+        self.arc_loss_ratio = arc_loss_ratio
         self.T = T
         self.p_cutoff = p_cutoff
         self.use_hard_label = hard_label
@@ -99,7 +103,7 @@ class RankUp(AlgorithmBase):
 
             feat_dict = {"x_lb": feats_x_lb, "x_ulb_w": feats_x_ulb_w, "x_ulb_s": feats_x_ulb_s}
 
-            reg_sup_loss = self.reg_loss(logits_x_lb, y_lb, reduction="mean")
+            sup_loss = self.reg_loss(logits_x_lb, y_lb, reduction="mean")
 
             # compute mask
             mask = self.call_hook("masking", "MaskingHook", logits_x_ulb=probs_x_ulb_w, softmax_x_ulb=False)
@@ -114,22 +118,22 @@ class RankUp(AlgorithmBase):
                 softmax=False,
             )
 
-            cls_sup_loss = self.cls_loss(logits_arc_x_lb, arc_y_lb, reduction="mean")
-            cls_unsup_loss = self.cls_consistency_loss(logits_x_ulb_s, arc_pseudo_label, "ce", mask=mask)
+            arc_sup_loss = self.ce_loss(logits_arc_x_lb, arc_y_lb, reduction="mean")
+            arc_unsup_loss = self.cls_consistency_loss(logits_x_ulb_s, arc_pseudo_label, "ce", mask=mask)
 
-            total_reg_loss = reg_sup_loss + self.ulb_loss_ratio
-            total_cls_loss = cls_sup_loss + self.cls_ulb_loss_ratio * cls_unsup_loss
-            total_loss = total_reg_loss + self.cls_loss_ratio * total_cls_loss
+            reg_loss = sup_loss + self.ulb_loss_ratio
+            arc_loss = arc_sup_loss + self.arc_ulb_loss_ratio * arc_unsup_loss
+            total_loss = reg_loss + self.arc_loss_ratio * arc_loss
 
         out_dict = self.process_out_dict(loss=total_loss, feat=feat_dict)
-        log_dict = self.process_log_dict(reg_loss=total_reg_loss.item(), cls_loss=total_cls_loss.item(), total_loss=total_loss.item())
+        log_dict = self.process_log_dict(sup_loss=(sup_loss + arc_sup_loss).item(), unsup_loss=arc_unsup_loss.item(), total_loss=total_loss.item())
         return out_dict, log_dict
 
     @staticmethod
     def get_argument():
         return [
-            SSL_Argument("--cls_ulb_loss_ratio", float, 1.0),
-            SSL_Argument("--cls_loss_ratio", float, 1.0),
+            SSL_Argument("--arc_ulb_loss_ratio", float, 1.0),
+            SSL_Argument("--arc_loss_ratio", float, 1.0),
             SSL_Argument("--T", float, 0.5),
             SSL_Argument("--p_cutoff", float, 0.95),
             SSL_Argument("--hard_label", str2bool, True),

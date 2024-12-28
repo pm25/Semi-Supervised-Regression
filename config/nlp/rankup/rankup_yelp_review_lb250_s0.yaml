@@ -17,8 +17,8 @@ batch_size: 8
 eval_batch_size: 8
 ema_m: 0.0
 uratio: 1
-cls_loss_ratio: 0.2
-cls_ulb_loss_ratio: 1.0
+arc_loss_ratio: 0.2
+arc_ulb_loss_ratio: 1.0
 hard_label: True
 T: 0.5
 p_cutoff: 0.95

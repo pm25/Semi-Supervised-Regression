@@ -40,8 +40,7 @@ class FullySupervised(AlgorithmBase):
                 feat_dict[k] = self.model(kwargs[k], only_feat=True)
 
         out_dict = self.process_out_dict(loss=sup_loss, feat=feat_dict)
-        log_dict = self.process_log_dict(total_loss=sup_loss.item())
-        log_dict["train_reg/sup_loss"] = sup_loss.item()
+        log_dict = self.process_log_dict(sup_loss=sup_loss.item(), total_loss=sup_loss.item())
         return out_dict, log_dict
 
     def train(self):

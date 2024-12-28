@@ -13,7 +13,7 @@ from torch.cuda.amp import GradScaler, autocast
 from scipy.stats import pearsonr, spearmanr, kendalltau, gmean
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 
-from semilearn.core.criterions import RegConsistencyLoss
+from semilearn.core.criterions import ConsistencyLoss
 from semilearn.core.hooks import (
     AimHook,
     CheckpointHook,
@@ -225,7 +225,7 @@ class AlgorithmBase:
 
     def set_criterions(self):
         reg_loss = get_criterion(self.criterion)
-        consistency_loss = RegConsistencyLoss()
+        consistency_loss = ConsistencyLoss()
         return reg_loss, consistency_loss
 
     def set_model(self, **kwargs):

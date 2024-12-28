@@ -71,8 +71,8 @@ def get_algorithm_specific_config(algorithm):
         alg_cfg["lambda_val"] = 2.0
     elif algorithm == "rankup":
         alg_cfg["uratio"] = 1
-        alg_cfg["cls_loss_ratio"] = 0.2
-        alg_cfg["cls_ulb_loss_ratio"] = 1.0
+        alg_cfg["arc_loss_ratio"] = 0.2
+        alg_cfg["arc_ulb_loss_ratio"] = 1.0
         alg_cfg["hard_label"] = True
         alg_cfg["T"] = 0.5
         alg_cfg["p_cutoff"] = 0.95
@@ -86,8 +86,8 @@ def get_algorithm_specific_config(algorithm):
         alg_cfg["ulb_loss_ratio"] = 1.0
         alg_cfg["unsup_warm_up"] = 0.4
         alg_cfg["rda_num_refine_iter"] = 1024
-        alg_cfg["cls_loss_ratio"] = 0.2
-        alg_cfg["cls_ulb_loss_ratio"] = 1.0
+        alg_cfg["arc_loss_ratio"] = 0.2
+        alg_cfg["arc_ulb_loss_ratio"] = 1.0
         alg_cfg["hard_label"] = True
         alg_cfg["T"] = 0.5
         alg_cfg["p_cutoff"] = 0.95

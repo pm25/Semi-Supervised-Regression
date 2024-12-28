@@ -31,7 +31,7 @@ def consistency_loss(logits, targets, name="mse", mask=None):
     return loss.mean()
 
 
-class RegConsistencyLoss(nn.Module):
+class ConsistencyLoss(nn.Module):
     """
     Wrapper for consistency loss
     """

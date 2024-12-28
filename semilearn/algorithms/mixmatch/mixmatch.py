@@ -123,11 +123,7 @@ class MixMatch(AlgorithmBase):
             total_loss = sup_loss + lambda_u * unsup_loss
 
         out_dict = self.process_out_dict(loss=total_loss, feat=feat_dict)
-        # log_dict = self.process_log_dict(sup_loss=sup_loss.item(), unsup_loss=unsup_loss.item(), total_loss=total_loss.item())
-        log_dict = self.process_log_dict(total_loss=total_loss.item())
-        log_dict["train_reg/sup_loss"] = sup_loss.item()
-        log_dict["train_reg/unsup_loss"] = unsup_loss.item()
-        log_dict["train_reg/total_loss"] = total_loss.item()
+        log_dict = self.process_log_dict(sup_loss=sup_loss.item(), unsup_loss=unsup_loss.item(), total_loss=total_loss.item())
         return out_dict, log_dict
 
     @staticmethod
