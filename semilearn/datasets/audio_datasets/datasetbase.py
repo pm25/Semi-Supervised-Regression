@@ -86,7 +86,7 @@ class BasicDataset(Dataset):
         # for regression algorithms
         if self.alg == "fullysupervised" or self.alg == "supervised":
             data_keys.update({"idx_ulb"})
-        elif self.alg == "rankup":
+        elif self.alg == "rankup" or self.alg == "rankuprda":
             data_keys.update({"idx_ulb", "x_ulb_w", "x_ulb_s"})
         elif self.alg == "pimodel" or self.alg == "meanteacher" or self.alg == "mixmatch":
             data_keys.update({"idx_ulb", "x_ulb_w", "x_ulb_w_2"})
