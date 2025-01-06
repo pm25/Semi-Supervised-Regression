@@ -112,7 +112,7 @@ if __name__ == "__main__":
     net.eval()
 
     # Load dataset and evaluation loader
-    dataset_dict = get_dataset(args, "fullysupervised", None, args.dataset, 0, args.data_dir, False)
+    dataset_dict = get_dataset(args, "fullysupervised", args.dataset, 0, args.data_dir, False)
     eval_dset = dataset_dict["eval"]
     eval_loader = get_data_loader(args, eval_dset, args.eval_batch_size, data_sampler=None, num_epochs=0, num_iters=0, num_workers=4, drop_last=False)
 
