@@ -35,7 +35,7 @@
 <h1 align="center">🎋 Semi-Supervised Regression</h1>
 
 <p align="center">
-  Welcome to the official repository for the paper <br />
+  Official repository for the paper <br />
   <strong>"RankUp: Boosting Semi-Supervised Regression with an Auxiliary Ranking Classifier"</strong>,<br />
   by Pin-Yen Huang, Szu-Wei Fu, and Yu Tsao. Accepted at NeurIPS 2024.
 </p>
@@ -84,8 +84,8 @@ This repository contains the official code and documentation for the paper _"Ran
 
 ## 2. News and Updates
 
--   [Jan 01, 2025] Simplified the framework by removing classification algorithms.
--   [Oct 23, 2024] Released the Semi-Supervised Regression (SSR) framework.
+-   [Jan 01, 2025] Simplified the code by removing classification algorithms.
+-   [Oct 23, 2024] Released the code for the RankUp paper.
 -   [Sep 25, 2024] The _RankUp_ paper has been accepted into the NeurIPS 2024 Main Track!
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
