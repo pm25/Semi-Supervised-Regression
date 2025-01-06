@@ -40,7 +40,7 @@ def split_ssl_data(
     Returns:
         Labeled data, labeled targets, unlabeled data, unlabeled targets.
     """
-    data, targets = np.array(data), np.array(targets)
+    data, targets = np.array(data, dtype=object), np.array(targets)
     lb_idx, ulb_idx = sample_labeled_unlabeled_data(args, targets, lb_num_labels, ulb_num_labels, load_exist=True)
 
     # manually set lb_idx and ulb_idx, do not use except for debug
