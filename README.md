@@ -70,7 +70,7 @@
 ## 1. Introduction
 
 <div align="center">
-  <img src="https://pm25.github.io/Research-Figures/rankup/figures/rankup-illustration.png" alt="RankUp Illustration" height="250">
+  <img src="https://pm25.github.io/research-figures/rankup/figures/rankup-illustration.png" alt="RankUp Illustration" height="250">
   <br/>
   Paper Link: <a href="https://arxiv.org/abs/2410.22124">https://arxiv.org/abs/2410.22124</a>
 </div>
